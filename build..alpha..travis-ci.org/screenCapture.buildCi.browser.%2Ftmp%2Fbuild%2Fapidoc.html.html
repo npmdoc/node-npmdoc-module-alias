@@ -1,0 +1,344 @@
+<html><head></head><body><div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a href="https://github.com/ilearnio/module-alias">module-alias (v2.0.0)</a>
+</h1>
+<h4>Create aliases of directories and register custom module paths in NodeJS like a boss!</h4>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.module-alias">module module-alias</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.module-alias.module-alias">
+            function <span class="apidocSignatureSpan"></span>module-alias
+            <span class="apidocSignatureSpan">(options)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.module-alias.addAlias">
+            function <span class="apidocSignatureSpan">module-alias.</span>addAlias
+            <span class="apidocSignatureSpan">(alias, target)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.module-alias.addAliases">
+            function <span class="apidocSignatureSpan">module-alias.</span>addAliases
+            <span class="apidocSignatureSpan">(aliases)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.module-alias.addPath">
+            function <span class="apidocSignatureSpan">module-alias.</span>addPath
+            <span class="apidocSignatureSpan">(path)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.module-alias.isPathMatchesAlias">
+            function <span class="apidocSignatureSpan">module-alias.</span>isPathMatchesAlias
+            <span class="apidocSignatureSpan">(path, alias)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.module-alias.reset">
+            function <span class="apidocSignatureSpan">module-alias.</span>reset
+            <span class="apidocSignatureSpan">()</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.module-alias" id="apidoc.module.module-alias">module module-alias</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.module-alias.module-alias" id="apidoc.element.module-alias.module-alias">
+        function <span class="apidocSignatureSpan"></span>module-alias
+        <span class="apidocSignatureSpan">(options)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function init(options) {
+  if (typeof options === 'string') {
+    options = { base: options }
+  }
+
+  options = options || {}
+
+  // There is probably 99% chance that the project root directory in located
+  // above the node_modules directory
+  var base = nodePath.resolve(
+    options.base || nodePath.join(__dirname, '../..')
+  )
+
+  try {
+    var npmPackage = require(base + '/package.json')
+  } catch (e) {
+    // Do nothing
+  }
+
+  if (typeof npmPackage !== 'object') {
+    throw Error('Unable to read ' + base + '/package.json')
+  }
+
+  //
+  // Import aliases
+  //
+
+  var aliases = npmPackage._moduleAliases || {}
+
+  for (var alias in aliases) {
+    if (aliases[alias][0] !== '/') {
+      aliases[alias] = nodePath.join(base, aliases[alias])
+    }
+  }
+
+  addAliases(aliases)
+
+  //
+  // Register custom module directories (like node_modules)
+  //
+
+  if (npmPackage._moduleDirectories instanceof Array) {
+    npmPackage._moduleDirectories.forEach(function (dir) {
+      if (dir === 'node_modules') return
+
+      var modulePath = nodePath.join(base, dir)
+      addPath(modulePath)
+    })
+  }
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.module-alias.addAlias" id="apidoc.element.module-alias.addAlias">
+        function <span class="apidocSignatureSpan">module-alias.</span>addAlias
+        <span class="apidocSignatureSpan">(alias, target)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function addAlias(alias, target) {
+  moduleAliases[alias] = target
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+_Examples:_
+```js
+const moduleAlias = require('module-alias')
+
+//
+// Register alias
+//
+moduleAlias.<span class="apidocCodeKeywordSpan">addAlias</span>('@client', __dirname + '/src/client')
+
+// Or multiple aliases
+moduleAlias.addAliases({
+  '@root'  : __dirname,
+  '@client': __dirname + '/src/client',
+  ...
+})
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.module-alias.addAliases" id="apidoc.element.module-alias.addAliases">
+        function <span class="apidocSignatureSpan">module-alias.</span>addAliases
+        <span class="apidocSignatureSpan">(aliases)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function addAliases(aliases) {
+  for (var alias in aliases) {
+    addAlias(alias, aliases[alias])
+  }
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+//
+// Register alias
+//
+moduleAlias.addAlias('@client', __dirname + '/src/client')
+
+// Or multiple aliases
+moduleAlias.<span class="apidocCodeKeywordSpan">addAliases</span>({
+  '@root'  : __dirname,
+  '@client': __dirname + '/src/client',
+  ...
+})
+
+//
+// Register custom modules directory
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.module-alias.addPath" id="apidoc.element.module-alias.addPath">
+        function <span class="apidocSignatureSpan">module-alias.</span>addPath
+        <span class="apidocSignatureSpan">(path)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function addPath(path) {
+  var parent
+  path = nodePath.normalize(path)
+
+  if (modulePaths.indexOf(path) === -1) {
+    modulePaths.push(path)
+    // Enable the search path for the current top-level module
+    addPathHelper(path, require.main.paths)
+    parent = module.parent
+
+    // Also modify the paths of the module that was used to load the
+    // app-module-paths module and all of it's parents
+    while (parent &amp;&amp; parent !== require.main) {
+      addPathHelper(path, parent.paths)
+      parent = parent.parent
+    }
+  }
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+  '@client': __dirname + '/src/client',
+  ...
+})
+
+//
+// Register custom modules directory
+//
+moduleAlias.<span class="apidocCodeKeywordSpan">addPath</span>(__dirname + '/node_modules_custom')
+moduleAlias.addPath(__dirname + '/src')
+
+//
+// Import settings from a specific package.json
+//
+moduleAlias(__dirname + '/package.json')
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.module-alias.isPathMatchesAlias" id="apidoc.element.module-alias.isPathMatchesAlias">
+        function <span class="apidocSignatureSpan">module-alias.</span>isPathMatchesAlias
+        <span class="apidocSignatureSpan">(path, alias)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function isPathMatchesAlias(path, alias) {
+  // Matching /^alias(\/|$)/
+  if (path.indexOf(alias) === 0) {
+    if (path.length === alias.length) return true
+    if (path[alias.length] === '/') return true
+  }
+
+  return false
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.module-alias.reset" id="apidoc.element.module-alias.reset">
+        function <span class="apidocSignatureSpan">module-alias.</span>reset
+        <span class="apidocSignatureSpan">()</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">function reset() {
+  // Reset all changes in paths caused by addPath function
+  modulePaths.forEach(function (path) {
+    removePathHelper(path, require.main.paths)
+    var parent = module.parent
+    while (parent &amp;&amp; parent !== require.main) {
+      removePathHelper(path, parent.paths)
+      parent = parent.parent
+    }
+  })
+
+  modulePaths = []
+  moduleAliases = {}
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
+</body></html>
